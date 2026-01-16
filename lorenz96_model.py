@@ -45,22 +45,16 @@ dt=0.05 # ~ 3 hours
 '''
 def dxdt( x_ens, tau, forcing_func ):
 
-    # Find number of variables in system
-    nx = x_ens.shape[1]
-
-    # Number of ensemble members
-    ne = x_ens.shape[0] 
-
     # Initialize memory to hold rate of change 
     rate = x_ens * 0.0
 
     # Compute advection term in interior points
-    rate[2:-1,:] = (x_ens[3:,:] - x_ens[:-3,:]) * x_ens[1:-2,:] 
+    rate[:,2:-1] = (x_ens[:,3:] - x_ens[:,:-3]) * x_ens[:,1:-2] 
 
     # Compute advection term in boundary points
-    rate[ 0,:] = (x_ens[1,:] - x_ens[-2,:])*x_ens[-1,:] 
-    rate[ 1,:] = (x_ens[2,:] - x_ens[-1,:])*x_ens[ 0,:]
-    rate[-1,:] = (x_ens[0,:] - x_ens[-3,:])*x_ens[-2,:]
+    rate[:, 0] = (x_ens[:,1] - x_ens[:,-2])*x_ens[:,-1] 
+    rate[:, 1] = (x_ens[:,2] - x_ens[:,-1])*x_ens[:, 0]
+    rate[:,-1] = (x_ens[:,0] - x_ens[:,-3])*x_ens[:,-2]
 
     # Add in self-decay term
     rate -= x_ens
@@ -120,7 +114,7 @@ def multistep( x_ens, tau, forcing_func, n_steps ):
         x_ens[:] = rk4(x_ens, tau, forcing_func)
         tau += dt
         ii += 1
-    return x_ens
+    return x_ens, tau
 
 
 
