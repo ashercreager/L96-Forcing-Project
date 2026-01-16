@@ -19,7 +19,7 @@ import lorenz96_model as l96
 num_gridpts = 40
 
 # Number of ensemble members
-num_ens = 2000
+num_ens = 4000
 
 # Example forcing function
 # Imposes a constant F value of 8
@@ -42,17 +42,19 @@ def constant_forcing_10( tau ):
 '''
     Prep an ensemble of initial model states
 '''
+np.random.seed(0)
+
 # Prep a reference state using the desired forcing
 x_single = np.random.normal( loc=0, scale=1e-1, size=(1, num_gridpts) )
 
-# # Spin-up that reference state
-# x_single, _ = l96.multistep( 
-#     x_single, 0, constant_forcing_8, 1000
-# )
+# Spin-up that reference state
+x_single, _ = l96.multistep( 
+    x_single, 0, constant_forcing_8, 1000
+)
 
 
 # Sample from random noise
-x_ens2d_init = x_single + np.random.normal( loc=0, scale=1, size=(num_ens, num_gridpts) )
+x_ens2d_init = x_single + np.random.normal( loc=0, scale=1e-2, size=(num_ens, num_gridpts) )
 
 
 '''
@@ -60,7 +62,7 @@ x_ens2d_init = x_single + np.random.normal( loc=0, scale=1, size=(num_ens, num_g
 '''
 
 # Total number of steps to run ensemble for
-tot_num_steps = 400
+tot_num_steps = 300
 
 # Measures of equilibration
 tseries_sqmean = np.zeros( tot_num_steps, dtype='f8' )
@@ -152,3 +154,4 @@ plt.savefig( 'eqbm_check_forcing_8.png' )
 
 
 
+# print( x_ens2d_forcing_8[0,:])
