@@ -10,7 +10,14 @@ Dimensions of x_ens: [ens, variable]
 
 ''' User controls '''
 # Model integration variables based on original paper
-dt=0.05 # ~ 3 hours
+dt=0.05 # ~ 6 hours, chosen so that a unit of time represents ~ 5 days,
+        # as synoptic systems roughly follow 5 day (3-7 day) timescales.
+        # Picking tau (scalar model time) ~ 5 days ensures that results
+        # from this model are comparable to actual weather models.
+        #
+        # Further, we want dt to be a small number so that RK4 integration
+        # remains accurate.
+        # 
 
 
 
@@ -46,9 +53,10 @@ dt=0.05 # ~ 3 hours
 def dxdt( x_ens, tau, forcing_func ):
 
     # Initialize memory to hold rate of change 
+    # (note: this just creates 'rate' as an empty array the same dimensions as x_ens)
     rate = x_ens * 0.0
 
-    # Compute advection term in interior points
+    # Compute advection term in interior points via x_j-1 * (x_j+1 - x_j-2)
     rate[:,2:-1] = (x_ens[:,3:] - x_ens[:,:-3]) * x_ens[:,1:-2] 
 
     # Compute advection term in boundary points

@@ -15,26 +15,17 @@ import lorenz96_model as l96
     User settings
 '''
 
-# Number of elements on a ring
+# Number of elements on a 'latitude' ring
 num_gridpts = 40
 
 # Number of ensemble members
 num_ens = 4000
 
-# Example forcing function
+# Constant forcing function
 # Imposes a constant F value of 8
-def constant_forcing_8( tau ):
-    return 8.0
-
-# Example forcing function
-# Imposes a constant F value of 6
-def constant_forcing_6( tau ):
-    return 6.0
-
-# Example forcing function
-# Imposes a constant F value of 10
-def constant_forcing_10( tau ):
-    return 10.0 
+Fconst = 10.0
+def constant_forcing_F( tau ):
+    return Fconst
 
 
 
@@ -42,6 +33,7 @@ def constant_forcing_10( tau ):
 '''
     Prep an ensemble of initial model states
 '''
+# Ensuring that the same random seed is used each simulation for reproducibility 
 np.random.seed(0)
 
 # Prep a reference state using the desired forcing
@@ -49,7 +41,7 @@ x_single = np.random.normal( loc=0, scale=1e-1, size=(1, num_gridpts) )
 
 # Spin-up that reference state
 x_single, _ = l96.multistep( 
-    x_single, 0, constant_forcing_8, 1000
+    x_single, 0, constant_forcing_F, 1000
 )
 
 
@@ -58,7 +50,7 @@ x_ens2d_init = x_single + np.random.normal( loc=0, scale=1e-2, size=(num_ens, nu
 
 
 '''
-    Generate equilibrium ensemble for forcing = 8
+    Generate equilibrium ensemble
 '''
 
 # Total number of steps to run ensemble for
@@ -71,39 +63,39 @@ tseries_sqskew = np.zeros( tot_num_steps, dtype='f8' )
 tseries_sqkurt = np.zeros( tot_num_steps, dtype='f8' )
 
 # Make copy of simulation
-x_ens2d_forcing_8 = x_ens2d_init * 1
+x_ens2d = x_ens2d_init * 1
 
 # Run simulation.
 tau = 0.
 for i in range( tot_num_steps ):
 
     # Advance state
-    x_ens2d_forcing_8, tau = l96.multistep( 
-        x_ens2d_forcing_8, tau, constant_forcing_8, 1 
+    x_ens2d, tau = l96.multistep( 
+        x_ens2d, tau, constant_forcing_F, 1 
     )
 
 
 
     # average state
-    x_avg = np.mean( x_ens2d_forcing_8, axis=0 )
+    x_avg = np.mean( x_ens2d, axis=0 )
 
     # Compute equilibration metrics
     tseries_sqmean[i] = np.mean( 
-        np.mean( x_ens2d_forcing_8, axis=0)**2
+        np.mean( x_ens2d, axis=0)**2
     )
     tseries_sigma2[i] = np.mean( 
-        np.var( x_ens2d_forcing_8, axis=0, ddof=1 )
+        np.var( x_ens2d, axis=0, ddof=1 )
     )
     tseries_sqskew[i] = np.mean( 
         np.power(
-            np.mean( np.power(x_ens2d_forcing_8 - x_avg, 3), axis=0 )
-            , 2
+            np.mean( np.power(x_ens2d - x_avg, 3), axis=0 )
+            , 2 # not true skew, actually 3rd central moment, turn into true skew
         )
     )
     tseries_sqkurt[i] = np.mean( 
         np.power(
-            np.mean( np.power(x_ens2d_forcing_8 - x_avg, 4), axis=0 )
-            , 2
+            np.mean( np.power(x_ens2d - x_avg, 4), axis=0 )
+            , 2 # not true kurt, actually 4th moment, turn into true kurt (and learn what means)
         )
     )
 
@@ -126,6 +118,9 @@ ax.set_title( 'RMS of Ens Avg' )
 ax.set_xlabel('')
 ax.plot( time_arr1d, np.sqrt(tseries_sqmean), '-r')
 ax.axhline( np.mean(np.sqrt(tseries_sqmean)[-20:]), color='k', linestyle=':')
+# note: the above function is using only the last 20 elements 
+# of the array under the assumption that the model has reached eqbm
+# by the end of the time series
 
 # 2nd subplot
 ax = axs[1]
@@ -148,10 +143,11 @@ ax.set_xlabel('Model Time')
 ax.plot( time_arr1d, np.sqrt(tseries_sqkurt), '-r')
 ax.axhline( np.mean(np.sqrt(tseries_sqkurt)[-20:]), color='k', linestyle=':')
 
+quit()
 plt.tight_layout()
 
-plt.savefig( 'eqbm_check_forcing_8.png' )
+save_directory = './Constant_Forcing_Plots/'
+plt.savefig( f'{save_directory}eqbm_check_forcing_{Fconst}.png' )
 
 
-
-# print( x_ens2d_forcing_8[0,:])
+# print( x_ens2d[0,:])
