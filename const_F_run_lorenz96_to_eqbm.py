@@ -16,7 +16,7 @@ import lorenz96_model as l96
 '''
 
 # Plot output
-plot_type = "gridplot" # can be a "statplot", "scatterplot", "gridplot"
+plot_type = "none" # can be a "statplot", "scatterplot", "gridplot", "none"
 
 # Plot save directory
 save_directory = './Const_F/Const_F_Plots/'
@@ -27,7 +27,7 @@ scatplotname = "Fconst_eqbm_scatter_"
 gridplotname = "Fconst_eqbm_grdpt_plot_"
 
 # Eqbm data save directory
-data_save_directory = "./Const_F/Equilibrium_Data"
+eqbm_data_save_directory = "./Const_F/Equilibrium_Data/"
 
 # Boolean to write data or not
 write_data = True
@@ -53,11 +53,12 @@ def constant_forcing_F( tau ):
 
 
 
-'''
-    Run simulations and plot generation
-'''
 
 
+
+'''
+    Preparing different arrays to hold data 
+'''
 
 # Empty arrays to store stat measures at each time interval of the simulation (aka equilibration metrics)
 tseries_sqmean = np.zeros( tot_num_steps, dtype='f8' )
@@ -65,21 +66,34 @@ tseries_sigma2 = np.zeros( tot_num_steps, dtype='f8' )
 tseries_sqskew = np.zeros( tot_num_steps, dtype='f8' )
 tseries_sqkurt = np.zeros( tot_num_steps, dtype='f8' )
 
-# Time array for equilibration metric plots
+# Prepping empty arrays to hold eqbm value data
+store_avg_eqbm_vals_1d      = np.array( [] )
+store_std_dev_vals_eqbm_1d  = np.array( [] )
+store_skew_vals_eqbm_1d     = np.array( [] )
+store_kurt_vals_eqbm_1d     = np.array( [] )
+
+
+
+# Time array for the equilibration metric plots
 time_arr1d = np.arange( tot_num_steps ) * l96.dt
 
-# Gridpoint index for gridpoint plot
+# 2D Gridpoint index for the gridpoint plot
 gridpt_index_1D = np.arange(1,num_gridpts+1)
 
 gridpt_index_2D = np.tile(  # Function to create a higher dimensional array by repeating - 'tiling' - another
     gridpt_index_1D,        # --> The array being tiled
     ( num_ens, 1 )          # () # of rows tiling, how many times copied horizontally )
-)  
+) 
 
 
 
 
-# Begin automation loop
+
+'''
+    Run simulations and plot generation
+'''
+
+# Loops until all simulation runs are done
 while Fconst <= Fstop:
 
 
@@ -156,58 +170,42 @@ while Fconst <= Fstop:
 
 
 
-    ''' Compiling Data and Writing '''
+    ''' Compiling Eqbm Values for writing data later'''
 
     # Approximate value where the ens avg is stable
-    ens_avg_eqbm_val_1d = np.mean(np.sqrt(tseries_sqmean)[-20:])
+    ens_avg_eqbm_val = np.mean(np.sqrt(tseries_sqmean)[-20:])
     
     # Approximate value where ens std dev is stable
-    ens_std_dev_eqbm_val_1d = np.mean(np.sqrt(tseries_sigma2)[-20:])
+    ens_std_dev_eqbm_val = np.mean(np.sqrt(tseries_sigma2)[-20:])
 
     # Approximate value where ens skew is stable
-    ens_skew_eqbm_val_1d = np.mean(np.sqrt(tseries_sqskew)[-20:])
+    ens_skew_eqbm_val = np.mean(np.sqrt(tseries_sqskew)[-20:])
 
     # Approximate value where kurtosis is stable
-    ens_kurtosis_eqbm_value_1d = np.mean(np.sqrt(tseries_sqkurt)[-20:])
+    ens_kurtosis_eqbm_value = np.mean(np.sqrt(tseries_sqkurt)[-20:])
 
-    # note: these all use only the last 20 elements of the 
-    # array under the assumption that the model has reached  
-    # eqbm by the end of the time series
+    # Appending eqbm values to their respective 'storing' arrays
+    store_avg_eqbm_vals_1d = np.append(
+        store_avg_eqbm_vals_1d,
+        [ens_avg_eqbm_val]
+    )
+
+    store_std_dev_vals_eqbm_1d = np.append(
+        store_std_dev_vals_eqbm_1d,
+        [ens_std_dev_eqbm_val]
+    )
+
+    store_skew_vals_eqbm_1d = np.append(
+        store_skew_vals_eqbm_1d,
+        [ens_skew_eqbm_val]
+    )
+
+    store_kurt_vals_eqbm_1d = np.append(
+        store_kurt_vals_eqbm_1d,
+        [ens_kurtosis_eqbm_value]
+    )
 
 
-    if write_data == True:
-        # Write data to a text file
-        data_arr_length = 2 * len(ens_avg_eqbm_val_1d)
-
-        # Prepping empty arrays to hold data
-        write_avg_eqbm_1d      = np.zeros( data_arr_length, dtype='f8' )
-        write_std_dev_eqbm_1d  = np.zeros( data_arr_length, dtype='f8' )
-        write_skew_eqbm_1d     = np.zeros( data_arr_length, dtype='f8' )
-        write_kurt_eqbm_1d     = np.zeros( data_arr_length, dtype='f8' )
-
-        # Filling arrays:
-        # Elements [0,2,4,...] represent consecutive F
-        # Elements [1,3,5,...] represent eqbm metric values
-
-        const_F_vals_1d = np.arange( Fstart, Fstop + Finterval, Finterval )
-
-        write_avg_eqbm_1d[0::2] += const_F_vals_1d
-        write_avg_eqbm_1d[1::2] += ens_avg_eqbm_val_1d 
-
-        write_std_dev_eqbm_1d[0::2] += const_F_vals_1d
-        write_std_dev_eqbm_1d[1::2] += ens_std_dev_eqbm_val_1d 
-
-        write_skew_eqbm_1d[0::2] += const_F_vals_1d
-        write_skew_eqbm_1d[1::2] += ens_skew_eqbm_val_1d 
-
-        write_kurt_eqbm_1d[0::2] += const_F_vals_1d
-        write_kurt_eqbm_1d[1::2] += ens_kurtosis_eqbm_value_1d 
-
-        # Writing data to text file
-        
-
-    else:
-        print( "No eqbm data written" )
 
 
     ''' Drawing desired plots for each run'''
@@ -223,7 +221,7 @@ while Fconst <= Fstop:
         ax.set_title( 'RMS of Ens Avg' )
         ax.set_xlabel('')
         ax.plot( time_arr1d, np.sqrt(tseries_sqmean), '-r')
-        ax.axhline( ens_avg_eqbm_val_1d, color='k', linestyle=':')
+        ax.axhline( ens_avg_eqbm_val, color='k', linestyle=':')
 
         
         #note: make this save info to some kind of doc
@@ -233,7 +231,7 @@ while Fconst <= Fstop:
         ax.set_title( 'RMS of Ens Std Dev' )
         ax.set_xlabel('')
         ax.plot( time_arr1d, np.sqrt(tseries_sigma2), '-r')
-        ax.axhline( ens_std_dev_eqbm_val_1d, color='k', linestyle=':')
+        ax.axhline( ens_std_dev_eqbm_val, color='k', linestyle=':')
 
 
         # 3rd subplot =====================
@@ -241,7 +239,7 @@ while Fconst <= Fstop:
         ax.set_title( 'RMS of Ens Skew' )
         ax.set_xlabel('')
         ax.plot( time_arr1d, np.sqrt(tseries_sqskew), '-r')
-        ax.axhline( ens_skew_eqbm_val_1d, color='k', linestyle=':')
+        ax.axhline( ens_skew_eqbm_val, color='k', linestyle=':')
 
 
         # 4th subplot =====================
@@ -249,7 +247,7 @@ while Fconst <= Fstop:
         ax.set_title( 'RMS of Ens Kurtosis' )
         ax.set_xlabel('Model Time')
         ax.plot( time_arr1d, np.sqrt(tseries_sqkurt), '-r')
-        ax.axhline( ens_kurtosis_eqbm_value_1d, color='k', linestyle=':')
+        ax.axhline( ens_kurtosis_eqbm_value, color='k', linestyle=':')
 
         
         plt.title(f"Eqbm Metrics for F={Fconst}")
@@ -322,7 +320,7 @@ while Fconst <= Fstop:
         
     else:
         ### In case of a typo
-        print("error: plot type not recognized")
+        print("No plots drawn")
 
     # ---------- End of plot generation code
 
@@ -335,5 +333,80 @@ while Fconst <= Fstop:
 # ----------------------------------- End Loop
 
 
-quit()
 
+
+
+
+'''
+    Writing eqbm value data to a text file to be stored
+'''
+
+if write_data == True:
+
+    # Forcing index for each model run
+    const_F_vals_1d = np.arange( Fstart, Fstop + Finterval, Finterval )
+
+    # Data arrays will have the following pattern:
+    # Elements [0,2,4,...] representing consecutive F
+    # Elements [1,3,5,...] representing eqbm metric values
+    #
+    # Therefore, each eqbm value array should have twice 
+    # as many total elements as # of simulations ram
+    data_arr_length = 2 * len(const_F_vals_1d)
+
+    # Prepping empty arrays to hold eqbm value data with adjacent forcing index
+    all_avg_eqbm_data_1d      = np.zeros( data_arr_length, dtype='f8' )
+    all_std_dev_eqbm_data_1d  = np.zeros( data_arr_length, dtype='f8' )
+    all_skew_eqbm_data_1d     = np.zeros( data_arr_length, dtype='f8' )
+    all_kurt_eqbm_data_1d     = np.zeros( data_arr_length, dtype='f8' )
+
+    # Compile data into arrays following this format:
+    # 
+    # Elements [0,2,4,...] represent consecutive F
+    # Elements [1,3,5,...] represent eqbm metric values
+    
+    all_avg_eqbm_data_1d[0::2] += const_F_vals_1d
+    all_avg_eqbm_data_1d[1::2] +=  store_avg_eqbm_vals_1d
+
+    all_std_dev_eqbm_data_1d[0::2] += const_F_vals_1d
+    all_std_dev_eqbm_data_1d[1::2] += store_std_dev_vals_eqbm_1d
+
+    all_skew_eqbm_data_1d[0::2] += const_F_vals_1d
+    all_skew_eqbm_data_1d[1::2] += store_skew_vals_eqbm_1d
+
+    all_kurt_eqbm_data_1d[0::2] += const_F_vals_1d
+    all_kurt_eqbm_data_1d[1::2] += store_kurt_vals_eqbm_1d
+
+    # Writing data to csv file
+    np.savetxt(
+        f"{eqbm_data_save_directory}const_F_avg_eqbm_values", 
+        all_avg_eqbm_data_1d, 
+        delimiter=","
+        )
+
+    np.savetxt(
+        f"{eqbm_data_save_directory}const_F_std_dev_eqbm_values", 
+        all_std_dev_eqbm_data_1d, 
+        delimiter=","
+        )
+
+    np.savetxt(
+        f"{eqbm_data_save_directory}const_F_skew_eqbm_values", 
+        all_skew_eqbm_data_1d, 
+        delimiter=","
+        )
+
+    np.savetxt(
+        f"{eqbm_data_save_directory}const_F_kurt_eqbm_values", 
+        all_kurt_eqbm_data_1d, 
+        delimiter=","
+        )
+    
+else:
+        print( "No eqbm data written" )
+
+
+
+
+
+quit()

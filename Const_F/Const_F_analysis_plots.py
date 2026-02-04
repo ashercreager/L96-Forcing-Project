@@ -18,9 +18,11 @@ forcing_index_1D = np.array( [
 # note: this process was not done rigorously . . .
 # these will all be rather rough approximations 
 
+
 '''
 Times until eqbm
 '''
+
 
 Avg_time_until_stability_1D = np.array( [
     13.75,
@@ -79,54 +81,22 @@ Eqbm values - these values were calculated from the model, not estimated
 '''
 
 Eqbm_avg = np.array( [
-    2.0,
-    2.14,
-    2.21,
-    2.27,
-    2.35,
-    2.41,
-    2.48,
-    2.53,
-    2.58
+
     ]
 )
 
 Eqbm_StdDev = np.array( [
-    2.8,
-    3.03,
-    3.24,
-    3.45,
-    3.64,
-    3.83,
-    4.01,
-    4.20,
-    4.37
+   
     ] 
 )
 
 Eqbm_Skew = np.array( [
-    3.5,
-    3.59,
-    4.17,
-    4.1,
-    4.75,
-    5.39,
-    6.32,
-    7.62,
-    8.70
+
     ]
 )
 
 Eqbm_Kurtosis = np.array( [
-    151,
-    206,
-    268.8,
-    347.54,
-    438.0,
-    537.08,
-    654.0,
-    787.8,
-    931.5
+
     ]
 )
 
@@ -138,7 +108,10 @@ Plotting
 '''
 
 # Init figure
-fig, axs = plt.subplots( nrows=4, ncols=2, figsize=(8,9))
+fig, axs = plt.subplots( nrows=4, ncols=1, figsize=(4,9))
+
+
+'''
 
 # First subplot
 ax = axs[0,0]
@@ -163,24 +136,26 @@ ax.set_title( 'Time until Ens Kurtosis Eqbm' )
 ax.set_xlabel('Constant F Value')
 ax.plot( forcing_index_1D, Kurtosis_time_until_stability_1D, '-r')
 
+'''
+
 # 5th subplot
-ax = axs[0,1]
+ax = axs[0,0]
 ax.set_title( 'Eqbm Avg Mean' )
 ax.set_ylabel( 'x-value' )
 ax.plot( forcing_index_1D, Eqbm_avg, '-b')
 
 # 6th subplot
-ax = axs[1,1]
+ax = axs[1,0]
 ax.set_title( 'Eqbm Std Dev Mean' )
 ax.plot( forcing_index_1D, Eqbm_StdDev, '-b')
 
 # 7th subplot
-ax = axs[2,1]
+ax = axs[2,0]
 ax.set_title( 'Eqbm Skew Mean' )
 ax.plot( forcing_index_1D, Eqbm_Skew, '-b')
 
 # 8th subplot
-ax = axs[3,1]
+ax = axs[3,0]
 ax.set_title( 'Eqbm Kurtosis Mean' )
 ax.set_xlabel( 'Constant F Value' )
 ax.plot( forcing_index_1D, Eqbm_Kurtosis, '-b')

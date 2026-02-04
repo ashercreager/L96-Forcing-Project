@@ -13,8 +13,8 @@ arrplus1 = np.hstack( (arr[ 0:: , 1:: ], arr[ 0:: , 0:1]) )
 
 
 # testing file writing and reading
-import csv
+test_vals = np.array([11,2,33])
+filename = "./Equilibrium_Data/test.csv"
 
-output_filename = "test_output.csv"
+np.savetxt(filename, test_vals, delimiter=",")
 
-with open(output_filename)
