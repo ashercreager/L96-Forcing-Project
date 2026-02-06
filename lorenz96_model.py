@@ -1,7 +1,7 @@
 ''' 
 Python functions to integrate Lorenz '96 model 
 
-Dimensions of x_ens: [ens, variable]
+Dimensions of x_ens: [member #, gridpt #]
 
 '''
 
@@ -36,18 +36,18 @@ dt=0.05 # ~ 6 hours, chosen so that a unit of time represents ~ 5 days,
     -------
     1) x_ens 
             2D numpy array containing an ensemble of model states
-            Dimensions: ensemble x gridpts
+            Dimensions: members x gridpts
     2) tau
             Scalar model time
     2) forcing_func
             A function of tau that returns the forcing at time tau.
-            Dimensions: ensemble x gridpts
+            Dimensions: members x gridpts
 
     Outputs:
     ---------
     1) rate
             2D numpy array containing dxdt for the ensemble of states
-            Dimensions: ensemble x gridpts
+            Dimensions: members x gridpts
 
 '''
 def dxdt( x_ens, tau, forcing_func ):

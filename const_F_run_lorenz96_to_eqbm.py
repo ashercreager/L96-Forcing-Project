@@ -16,7 +16,7 @@ import lorenz96_model as l96
 '''
 
 # Plot output
-plot_type = "none" # can be a "statplot", "scatterplot", "gridplot", "none"
+plot_type = "statplot" # can be a "statplot", "scatterplot", "gridplot", "none"
 
 # Plot save directory
 save_directory = './Const_F/Const_F_Plots/'
@@ -30,7 +30,7 @@ gridplotname = "Fconst_eqbm_grdpt_plot_"
 eqbm_data_save_directory = "./Const_F/Equilibrium_Data/"
 
 # Boolean to write data or not
-write_data = True
+write_data = False
 
 # Number of elements on a 'latitude' ring
 num_gridpts = 40
@@ -44,7 +44,7 @@ tot_num_steps = 300
 
 # Constant forcing function
 Fstart = 6.0
-Fstop = 6.5
+Fstop = 6.0
 Finterval = 0.5
 Fconst = Fstart * 1
 def constant_forcing_F( tau ):
@@ -90,7 +90,7 @@ gridpt_index_2D = np.tile(  # Function to create a higher dimensional array by r
 
 
 '''
-    Run simulations and plot generation
+    Run simulation and plot generation loop
 '''
 
 # Loops until all simulation runs are done
@@ -249,8 +249,6 @@ while Fconst <= Fstop:
         ax.plot( time_arr1d, np.sqrt(tseries_sqkurt), '-r')
         ax.axhline( ens_kurtosis_eqbm_value, color='k', linestyle=':')
 
-        
-        plt.title(f"Eqbm Metrics for F={Fconst}")
         plt.tight_layout()
 
         plt.savefig( f'{save_directory}{statplotname}{Fconst}.png' )
@@ -278,14 +276,14 @@ while Fconst <= Fstop:
             ens_collection_plus1_grdpt0,
             linestyle='none',   # want isolated datapoints
             marker='o',         # point marker
-            markersize=3,
-            c='lightsteelblue',              # color red
-            alpha=0.9
+            markersize=4,
+            c='indianred',      # color 
+            alpha=1.0
         )
 
-        plt.xlabel("x_n")
-        plt.ylabel("x_n+1")
-        plt.title(f"Eqbm Distribution for constant F={Fconst}")
+        plt.xlabel("x[n]")
+        plt.ylabel("x[n+1]")
+        plt.title(f"Eqbm Distribution for constant F={Fconst}", fontweight='bold')
         plt.tight_layout()
 
 
