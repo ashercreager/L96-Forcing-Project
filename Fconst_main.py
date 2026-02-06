@@ -22,22 +22,22 @@ import matplotlib.pyplot as plt
 
 model_settings = config(
     num_gridpts = 40,       # 40 gridpts is the norm
-    num_members    = 4000,
-    tot_num_steps  = 300
+    num_members    = 9000,  # increased members for more accurate distribution
+    tot_num_steps  = 340    # increased number of steps, early runs nots in eqbm
 )
 
 # F Settings for looped runs
 F_start = 6.0
-F_end   = 6.5
-F_step  = 0.5
+F_end   = 11.0
+F_step  = 0.125
 
 # Write data on/off
 write_eqbm_data = True
 write_directory = './Const_F/Eqbm_Data/'
 
 # Plot settings
-draw_distr_plots = False
-draw_tseries_plots = False
+draw_distr_plots = True
+draw_tseries_plots = True
 
 plot_save_directory = './Const_F/Plots/'
 

@@ -1,6 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+'''
+    User Settings
+'''
+
+plot_color = 'cornflowerblue'
+
 
 '''
 Eqbm values - these values were calculated from the model, not estimated
@@ -28,23 +34,23 @@ fig, axs = plt.subplots( nrows=4, ncols=1, figsize=(4,9))
 ax = axs[0]
 ax.set_title( 'Eqbm Avg Mean' )
 ax.set_ylabel( 'x-value' )
-ax.plot( F_index_1D, Eqbm_Avgs_1d, '-b')
+ax.plot( F_index_1D, Eqbm_Avgs_1d, c=plot_color)
 
 # 2nd subplot
 ax = axs[1]
 ax.set_title( 'Eqbm Std Dev Mean' )
-ax.plot( F_index_1D, Eqbm_StdDevs_1d, '-b')
+ax.plot( F_index_1D, Eqbm_StdDevs_1d, c=plot_color)
 
 # 3rd subplot
 ax = axs[2]
 ax.set_title( 'Eqbm Skew Mean' )
-ax.plot( F_index_1D, Eqbm_Skews_1d, '-b')
+ax.plot( F_index_1D, Eqbm_Skews_1d, c=plot_color)
 
 # 4th subplot
 ax = axs[3]
 ax.set_title( 'Eqbm Kurtosis Mean' )
 ax.set_xlabel( 'Constant F Value' )
-ax.plot( F_index_1D, Eqbm_Kurts_1d, '-b')
+ax.plot( F_index_1D, Eqbm_Kurts_1d, c=plot_color)
 
 plt.tight_layout()
 
