@@ -54,46 +54,62 @@ def init_ensemble( cfg: config, forcing_func ):
     return x_ens2d_init
 
 
-def compute_eqbm_metrics( x_ens2d ):
+def compute_eqbm_metrics( x_ens2d, n ):
     ''' Function to compute each of the eqbm metrics 
         (ensemble average, std dev, skew, kurt) during
         any given timestep of the simulation
 
-        Note: these only compute the metrics at a 
-        single gridpoint! Specifically, gridpoint 0.
+        NOTE: this currently computes the eqbm
+        metrics of all member across every 
+        gridpoint seperately, and then averages
+        them to find the 'mean model' values
 
-        This is what 'axis=0' is doing in each of the 
-        functions - it is taking only the gridpoint 0
-        values of each ensemble member.
+        input n is the number of members being ran:
+        used to represent the number of samples per
+        gridpoint. Grabbed from cfg (num_members)
     '''
 
-    # average state: necessary for computing skew and kurtosis
-    x_avg = np.mean( x_ens2d, axis=0 )
+    # Computing the averages of each gridpt
+    # and then storing in a 1d array.
+    gridpt_means_1d = np.mean( x_ens2d, axis=0 )
 
+    # Computing central moments of each gridpt
+    moment2_1d = ( 1/n ) * np.sum( (x_ens2d - gridpt_means_1d)**2, axis=0 ) # 2nd central moment
+    moment3_1d = ( 1/n ) * np.sum( (x_ens2d - gridpt_means_1d)**3, axis=0 ) # 3rd central moment
+    moment4_1d = ( 1/n ) * np.sum( (x_ens2d - gridpt_means_1d)**4, axis=0 ) # 4th central moment
 
-    # Computing the square mean of all member values
-    sqmean = np.mean( 
-        np.mean( x_ens2d, axis=0 )**2
-    )
+    # Computing standard deviations of each gridpt
+    sigmas_1d = np.sqrt( moment2_1d )
 
-    # Computing the standard deviation
-    sigma2 = np.mean( 
-        np.var( x_ens2d, axis=0, ddof=1 )
-    )
+    # Computing skewness of each gridpt
+    skews_1d = moment3_1d / ( sigmas_1d**3 )
 
-    # Computing the skew
-    # TODO: not true skew, actually 3rd central moment, turn into true skew
-    sqskew = np.mean( 
-        np.power( np.mean( np.power(x_ens2d - x_avg, 3 ), axis=0 ), 2 )
-    )
+    # Computing (excess) kurtosis of each gridpt
+    kurts_1d = moment4_1d / ( sigmas_1d**4 ) - 3.0
 
-    # Computing the kurtosis
-    # TODO: not true kurt, actually 4th moment, turn into true kurt (and learn what means)
-    sqkurt = np.mean( 
-        np.power(  np.mean( np.power(x_ens2d - x_avg, 4 ),  axis=0 ), 2  )
-    )
+    # Everything above has calculated the eqbm
+    # metrics of every gridpt and stored them
+    # into their resp. 1d arrays. The following
+    # code is meant to take the arithmetic mean
+    # of each of these metric across the entire
+    # latitude circle to find the 'model-average'
+    # mean state, sigma, skew, and kurtosis.
+    #
+    # Basically asking, "at a random gridpoint,
+    # what is the typical ensemble mean state/
+    # sigma/skew/kurtosis?"
+    #
+    # If all four have stabilized with time, 
+    # then the model's distribution is no longer
+    # changing signficantly with time and has
+    # essentially reached 'peak randomness'
 
-    return sqmean, sigma2, sqskew, sqkurt
+    model_mean  = np.mean( gridpt_means_1d )
+    model_sigma = np.mean( sigmas_1d )
+    model_skew = np.mean( skews_1d )
+    model_kurt = np.mean( kurts_1d ) 
+
+    return model_mean, model_sigma, model_skew, model_kurt
 
 
 
@@ -103,10 +119,10 @@ def run_model( cfg: config, forcing_func ):
     '''
 
     # Defining empty arrays to store equilibration metrics at each time step
-    tseries_sqmean = np.zeros( cfg.tot_num_steps, dtype='f8' )
-    tseries_sigma2 = np.zeros( cfg.tot_num_steps, dtype='f8' )
-    tseries_sqskew = np.zeros( cfg.tot_num_steps, dtype='f8' )
-    tseries_sqkurt = np.zeros( cfg.tot_num_steps, dtype='f8' )
+    tseries_mean_mean = np.zeros( cfg.tot_num_steps, dtype='f8' )
+    tseries_mean_sigma = np.zeros( cfg.tot_num_steps, dtype='f8' )
+    tseries_mean_skew = np.zeros( cfg.tot_num_steps, dtype='f8' )
+    tseries_mean_kurt = np.zeros( cfg.tot_num_steps, dtype='f8' )
 
     # Define x_ens2d before first simulation run
     x_ens2d = init_ensemble( cfg, forcing_func )
@@ -121,10 +137,10 @@ def run_model( cfg: config, forcing_func ):
         )
 
         # Solving eqbm metrics at each timestep
-        (tseries_sqmean[i], 
-         tseries_sigma2[i], 
-         tseries_sqskew[i], 
-         tseries_sqkurt[i]) = compute_eqbm_metrics ( x_ens2d )
+        (tseries_mean_mean[i], 
+         tseries_mean_sigma[i], 
+         tseries_mean_skew[i], 
+         tseries_mean_kurt[i]) = compute_eqbm_metrics ( x_ens2d, cfg.num_members )
     # ------------End loop
 
 
@@ -133,26 +149,28 @@ def run_model( cfg: config, forcing_func ):
     # last 20 steps of the model
 
     # Approximate value where the ens avg is stable
-    ens_avg_eqbm_val = np.mean(np.sqrt(tseries_sqmean)[-20:])
+    eqbm_mean = np.mean(tseries_mean_mean[-20:])
     
     # Approximate value where ens std dev is stable
-    ens_std_dev_eqbm_val = np.mean(np.sqrt(tseries_sigma2)[-20:])
+    eqbm_sigma = np.mean(tseries_mean_sigma[-20:])
 
     # Approximate value where ens skew is stable
-    ens_skew_eqbm_val = np.mean(np.sqrt(tseries_sqskew)[-20:])
+    eqbm_skew = np.mean(tseries_mean_skew[-20:])
 
     # Approximate value where kurtosis is stable
-    ens_kurtosis_eqbm_value = np.mean(np.sqrt(tseries_sqkurt)[-20:])
+    eqbm_kurt = np.mean(tseries_mean_kurt[-20:])
 
+    # Output
     return {
-        "tseries_sqmean": tseries_sqmean,       # 1D array type
-        "tseries_sigma2": tseries_sigma2,       # 1D array type
-        "tseries_sqskew": tseries_sqskew,       # 1D array type
-        "tseries_sqkurt": tseries_sqkurt,       # 1D array type
-        "eqbm_avg"  : ens_avg_eqbm_val,         # Float type
-        "eqbm_std"  : ens_std_dev_eqbm_val,     # Float type
-        "eqbm_skew" : ens_skew_eqbm_val,        # Float type
-        "eqbm_kurt" : ens_kurtosis_eqbm_value,  # Float type
+        "tseries_mean_mean" : tseries_mean_mean,    # 1D array type
+        "tseries_mean_sigma": tseries_mean_sigma,   # 1D array type
+        "tseries_mean_skew" : tseries_mean_skew,    # 1D array type
+        "tseries_mean_kurt" : tseries_mean_kurt,    # 1D array type
+        
+        "eqbm_mean"  : eqbm_mean,   # Float type
+        "eqbm_sigma" : eqbm_sigma,  # Float type
+        "eqbm_skew"  : eqbm_skew,   # Float type
+        "eqbm_kurt"  : eqbm_kurt,   # Float type
 
         "x_ens2d_final" : x_ens2d,              # 2d array type: [ member #, gridpt # ]
     }

@@ -14,7 +14,7 @@ Eqbm values - these values were calculated from the model, not estimated
 
 Eqbm_Avgs_1d    = np.loadtxt("./Eqbm_Data/Fconst_eqbm_avgs")
 
-Eqbm_StdDevs_1d =  np.loadtxt("./Eqbm_Data/Fconst_eqbm_sigma2s")
+Eqbm_StdDevs_1d =  np.loadtxt("./Eqbm_Data/Fconst_eqbm_sigmas")
 
 Eqbm_Skews_1d   = np.loadtxt("./Eqbm_Data/Fconst_eqbm_skews")
 

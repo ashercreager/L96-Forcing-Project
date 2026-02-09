@@ -22,8 +22,8 @@ import matplotlib.pyplot as plt
 
 model_settings = config(
     num_gridpts = 40,       # 40 gridpts is the norm
-    num_members    = 9000,  # increased members for more accurate distribution
-    tot_num_steps  = 340    # increased number of steps, early runs nots in eqbm
+    num_members   = 12000,  # increased members for more accurate distribution
+    tot_num_steps = 400     # increased number of steps, early runs nots in eqbm
 )
 
 # F Settings for looped runs
@@ -66,22 +66,22 @@ def const_forcing( tau ):
 # serves to avoid use of np.append in
 # loop, which isn't a cheap function
 
-store_tseries_sqmean_2d = np.zeros(
+store_tseries_mean_2d = np.zeros(
     (runtime, 
     model_settings.tot_num_steps),
     dtype='f8'
     )
-store_tseries_sigma2_2d = np.zeros(
+store_tseries_sigma_2d = np.zeros(
     (runtime, 
     model_settings.tot_num_steps),
     dtype='f8'
     )
-store_tseries_sqskew_2d = np.zeros(
+store_tseries_skew_2d = np.zeros(
     (runtime, 
     model_settings.tot_num_steps),
     dtype='f8'
     )
-store_tseries_sqkurt_2d = np.zeros(
+store_tseries_kurt_2d = np.zeros(
     (runtime, 
     model_settings.tot_num_steps),
     dtype='f8'
@@ -98,11 +98,11 @@ store_tseries_Findex_2d = np.zeros(
 # will correspond to the same forcing index
 # across all arrays.
 
-store_eqbm_sqmean_1d = np.zeros( 
+store_eqbm_mean_1d = np.zeros( 
     runtime, 
     dtype='f8' 
     ) 
-store_eqbm_sigma2_1d = np.zeros( 
+store_eqbm_sigma_1d = np.zeros( 
     runtime, 
     dtype='f8' 
     ) 
@@ -145,26 +145,26 @@ for i in range(runtime):
     output_dict = run_model( model_settings, const_forcing )
 
     # Save time-series output into 2d storage arrays
-    store_tseries_sqmean_2d[i,:] += output_dict.get(
-        "tseries_sqmean"
+    store_tseries_mean_2d[i,:] += output_dict.get(
+        "tseries_mean_mean"
         )
-    store_tseries_sigma2_2d[i,:] += output_dict.get(
-        "tseries_sigma2"
+    store_tseries_sigma_2d[i,:] += output_dict.get(
+        "tseries_mean_sigma"
         )
-    store_tseries_sqskew_2d[i,:] += output_dict.get(
-        "tseries_sqskew"
+    store_tseries_skew_2d[i,:] += output_dict.get(
+        "tseries_mean_skew"
         )
-    store_tseries_sqkurt_2d[i,:] += output_dict.get(
-        "tseries_sqkurt"
+    store_tseries_kurt_2d[i,:] += output_dict.get(
+        "tseries_mean_kurt"
         )
     store_tseries_Findex_2d[i,:] += F
 
     # Save final eqbm values into 1d storage arrays
-    store_eqbm_sqmean_1d[i] += output_dict.get(
-        "eqbm_avg"
+    store_eqbm_mean_1d[i] += output_dict.get(
+        "eqbm_mean"
         )
-    store_eqbm_sigma2_1d[i] += output_dict.get(
-        "eqbm_std"
+    store_eqbm_sigma_1d[i] += output_dict.get(
+        "eqbm_sigma"
         )
     store_eqbm_skew_1d[i] += output_dict.get(
         "eqbm_skew"
@@ -187,6 +187,15 @@ for i in range(runtime):
 
 ''' Writing Eqbm Data '''
 
+# x_final = store_final_ens_3d[:,:,0]       ==> Code for outputting distribution
+# x_final_T = np.transpose(x_final)             of sngle gridpt.
+# 
+# np.savetxt(
+#     f"{write_directory}x_final_{F_start}", 
+#     x_final_T, 
+#     delimiter=''
+#     )
+
 if write_eqbm_data == True:
     # If true, all eqbm data will be
     # written to their respective txt
@@ -206,7 +215,7 @@ if write_eqbm_data == True:
     '''
     File save names given by:
     -> Fconst_eqbm_avgs
-    -> Fconst_eqbm_sigma2s
+    -> Fconst_eqbm_sigmas
     -> Fconst_eqbm_skews
     -> Fconst_eqbm_kurts
     -> Fconst_F_index
@@ -220,12 +229,12 @@ if write_eqbm_data == True:
         )
     np.savetxt(
         f"{write_directory}Fconst_eqbm_avgs", 
-        store_eqbm_sqmean_1d, 
+        store_eqbm_mean_1d, 
         delimiter=","
         )
     np.savetxt(
-        f"{write_directory}Fconst_eqbm_sigma2s", 
-        store_eqbm_sigma2_1d, 
+        f"{write_directory}Fconst_eqbm_sigmas", 
+        store_eqbm_sigma_1d, 
         delimiter=","
         )
     np.savetxt(
@@ -282,7 +291,7 @@ def distr_plotter( i : int ):
     Fnum = i * F_step + F_start
     axs.set_title(f"Eqbm Distribution for constant F={Fnum}", fontweight='bold')
     plt.tight_layout()
-    plt.savefig( f'{plot_save_directory}Fconst_distr_plot_{Fnum}.png' )
+    plt.savefig( f'{plot_save_directory}Fconst_distr_plot_{i}_{Fnum}.png' )
 
     print(f'Distribution plot drawn for F = {Fnum} . . . ')
 
@@ -302,35 +311,34 @@ def tseries_plotter( i : int):
 
     # 1st subplot =====================
     ax = axs[0]
-    ax.set_title( 'RMS of Ens Avg' )
+    ax.set_title( r'Mean of All Ens Means (all gridpoints)' )
     ax.set_xlabel('')
-    ax.plot( time_arr1d, np.sqrt(store_tseries_sqmean_2d[i,:]), '-r')
-    ax.axhline( store_eqbm_sqmean_1d[i], color='k', linestyle=':')
+    ax.plot( time_arr1d, store_tseries_mean_2d[i,:], '-r')
+    ax.axhline( store_eqbm_mean_1d[i], color='k', linestyle=':')
     
-    #note: make this save info to some kind of doc
     # 2nd subplot =====================
     ax = axs[1]
-    ax.set_title( 'RMS of Ens Std Dev' )
+    ax.set_title( r'Mean of All Ens $\sigma$' )
     ax.set_xlabel('')
-    ax.plot( time_arr1d, np.sqrt(store_tseries_sigma2_2d[i,:]), '-r')
-    ax.axhline( store_eqbm_sigma2_1d[i], color='k', linestyle=':')
+    ax.plot( time_arr1d, store_tseries_sigma_2d[i,:], '-r')
+    ax.axhline( store_eqbm_sigma_1d[i], color='k', linestyle=':')
     # 3rd subplot =====================
     ax = axs[2]
-    ax.set_title( 'RMS of Ens Skew' )
+    ax.set_title( r'Mean of All Ens Skews' )
     ax.set_xlabel('')
-    ax.plot( time_arr1d, np.sqrt(store_tseries_sqskew_2d[i,:]), '-r')
+    ax.plot( time_arr1d, store_tseries_skew_2d[i,:], '-r')
     ax.axhline( store_eqbm_skew_1d[i], color='k', linestyle=':')
     # 4th subplot =====================
     ax = axs[3]
-    ax.set_title( 'RMS of Ens Kurtosis' )
+    ax.set_title( r'Mean of All Ens Kurtosis' )
     ax.set_xlabel('Model Time', fontsize=12)
-    ax.plot( time_arr1d, np.sqrt(store_tseries_sqkurt_2d[i,:]), '-r')
+    ax.plot( time_arr1d, store_tseries_kurt_2d[i,:], '-r')
     ax.axhline( store_eqbm_kurt_1d[i], color='k', linestyle=':')
     
     Fnum = i * F_step + F_start
 
     plt.tight_layout()
-    plt.savefig( f'{plot_save_directory}Fconst_tseries_plot_{Fnum}.png' )
+    plt.savefig( f'{plot_save_directory}Fconst_tseries_plot_{i}_{Fnum}.png' )
 
     print(f'Timeseries plot drawn for F = {Fnum} . . . ')
 
