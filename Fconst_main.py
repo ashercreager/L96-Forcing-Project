@@ -32,12 +32,12 @@ F_end   = 11.0
 F_step  = 0.125
 
 # Write data on/off
-write_eqbm_data = True
+write_eqbm_data = False
 write_directory = './Const_F/Eqbm_Data/'
 
 # Plot settings
 draw_distr_plots = True
-draw_tseries_plots = True
+draw_tseries_plots = False
 
 plot_save_directory = './Const_F/Plots/'
 
@@ -265,10 +265,7 @@ def distr_plotter( i : int ):
     gridpt0_distr = store_final_ens_3d[ i, :, 0 ]
 
     # Sliding all elements of ens_collection 1 index over (x_n+1)
-    gridpt0_distr_plus1 = np.append(
-        gridpt0_distr[1::],    # -> Element 1 new start of array
-        gridpt0_distr[0]       # -> Puts n=0 at end
-    )   
+    gridpt0_distr_plus1 = store_final_ens_3d[i,:,1]
 
     fig, axs = plt.subplots( nrows=1, ncols=1, figsize=(8, 8) )
 
@@ -277,13 +274,13 @@ def distr_plotter( i : int ):
         gridpt0_distr_plus1,
         linestyle='none',   # want isolated datapoints
         marker='o',         # point marker
-        markersize=4,
+        markersize=14.5,
         c='indianred',      # color 
-        alpha=1.0
+        alpha=0.1
     )
 
     axs.set_xlabel("x[n]", fontsize=14)
-    axs.set_ylabel("x[n+1]", fontsize=14)
+    axs.set_ylabel("x[n+2]", fontsize=14)
 
     # This function increases font size of axis ticks, just looks nicer
     axs.tick_params(axis='both', which='major', labelsize=12) # Change size for both axes, major ticks
@@ -311,26 +308,26 @@ def tseries_plotter( i : int):
 
     # 1st subplot =====================
     ax = axs[0]
-    ax.set_title( r'Mean of All Ens Means (all gridpoints)' )
+    ax.set_title( r'RMS of All Gridpt Ens Means' )
     ax.set_xlabel('')
     ax.plot( time_arr1d, store_tseries_mean_2d[i,:], '-r')
     ax.axhline( store_eqbm_mean_1d[i], color='k', linestyle=':')
     
     # 2nd subplot =====================
     ax = axs[1]
-    ax.set_title( r'Mean of All Ens $\sigma$' )
+    ax.set_title( r'RMS of All Gridpt Ens $\sigma$' )
     ax.set_xlabel('')
     ax.plot( time_arr1d, store_tseries_sigma_2d[i,:], '-r')
     ax.axhline( store_eqbm_sigma_1d[i], color='k', linestyle=':')
     # 3rd subplot =====================
     ax = axs[2]
-    ax.set_title( r'Mean of All Ens Skews' )
+    ax.set_title( r'RMS of All Gridpt Ens Skews' )
     ax.set_xlabel('')
     ax.plot( time_arr1d, store_tseries_skew_2d[i,:], '-r')
     ax.axhline( store_eqbm_skew_1d[i], color='k', linestyle=':')
     # 4th subplot =====================
     ax = axs[3]
-    ax.set_title( r'Mean of All Ens Kurtosis' )
+    ax.set_title( r'RMS of All Gridpt Ens Kurtosis' )
     ax.set_xlabel('Model Time', fontsize=12)
     ax.plot( time_arr1d, store_tseries_kurt_2d[i,:], '-r')
     ax.axhline( store_eqbm_kurt_1d[i], color='k', linestyle=':')

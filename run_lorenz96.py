@@ -61,8 +61,8 @@ def compute_eqbm_metrics( x_ens2d, n ):
 
         NOTE: this currently computes the eqbm
         metrics of all member across every 
-        gridpoint seperately, and then averages
-        them to find the 'mean model' values
+        gridpoint seperately, and then RMS's
+        them to find the 'mean model' magnitudes
 
         input n is the number of members being ran:
         used to represent the number of samples per
@@ -90,24 +90,25 @@ def compute_eqbm_metrics( x_ens2d, n ):
     # Everything above has calculated the eqbm
     # metrics of every gridpt and stored them
     # into their resp. 1d arrays. The following
-    # code is meant to take the arithmetic mean
+    # code is meant to take the root-mean-square
     # of each of these metric across the entire
-    # latitude circle to find the 'model-average'
-    # mean state, sigma, skew, and kurtosis.
+    # latitude circle to find the magnitudes of 
+    # the 'model-average' mean state, sigma, skew,
+    # and kurtosis.
     #
     # Basically asking, "at a random gridpoint,
-    # what is the typical ensemble mean state/
-    # sigma/skew/kurtosis?"
+    # what is the magnitude of the typical 
+    # ensemble mean state/sigma/skew/kurtosis?"
     #
     # If all four have stabilized with time, 
     # then the model's distribution is no longer
     # changing signficantly with time and has
     # essentially reached 'peak randomness'
 
-    model_mean  = np.mean( gridpt_means_1d )
-    model_sigma = np.mean( sigmas_1d )
-    model_skew = np.mean( skews_1d )
-    model_kurt = np.mean( kurts_1d ) 
+    model_mean  = np.sqrt( np.mean( gridpt_means_1d ** 2 ) )
+    model_sigma = np.sqrt( np.mean( sigmas_1d ** 2 ) )
+    model_skew = np.sqrt( np.mean( skews_1d ** 2 ) )
+    model_kurt = np.sqrt( np.mean( kurts_1d ** 2 ) )
 
     return model_mean, model_sigma, model_skew, model_kurt
 
