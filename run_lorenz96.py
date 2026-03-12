@@ -47,7 +47,7 @@ def init_ensemble( cfg: config, forcing_func ):
     x_single = np.random.normal( loc=0, scale=1e-1, size=(1, cfg.num_gridpts) )
 
     # Let l96 run for 1000 steps on reference state so it attains model-accurate values
-    x_single, _ = l96.multistep( x_single, 0, forcing_func, 1000 )
+    x_single, _ = l96.multistep( x_single, 0, forcing_func, 2000 ) # mess with last param a little
 
     # Create the 2d ensemble array of slightly perturbed members from the reference state
     x_ens2d_init = x_single + np.random.normal( loc=0, scale=1e-2, size=(cfg.num_members, cfg.num_gridpts) )

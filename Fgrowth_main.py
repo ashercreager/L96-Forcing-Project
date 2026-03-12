@@ -21,50 +21,32 @@ import matplotlib.pyplot as plt
 
 model_settings = config(
     num_gridpts = 40,      
-    num_members   = 4000,  
+    num_members   = 4000, 
     tot_num_steps = 5840   #  5840
 )
 
 # Write data on/off
 write_eqbm_data = False
-write_directory = './Sinusoidal_F/Eqbm_Data/'
+write_directory = './Other/'
 
 # Plot settings
-draw_distr_plots = False
+draw_distr_plots = True
 draw_tseries_plots = True
 
-plot_save_directory = './Sinusoidal_F/'
+plot_save_directory = './Other/'
 
 # Parameters
-amplitude = 2.5
-wavelength = (73)  # How long one oscillation should take in model time tau
-                 # For seasonal sinusoid, let 1 tau = 5 days =>
-                 # dt = 0.05 = ~6 hours
-wavelength_dividors = [ 1, 2, 4, 8, 16, 24, 36 ]
-div = wavelength_dividors[0]
-
-# In the midlatitudes, winter can experience roughly 50% less
-# solar forcing than summers, or something like 30% less forcing 
-# from the mean annual forcing.
-vshift = 8.5
-# Picking F=10.0 to be the mean annual forcing (corresponding
-# to findings from constant F runs in which F=10 implied a 
-# predictability window of about 2 weeks, which is what we find
-# in real world)
+growthrate = 0.09
 
 
 
 ''' Needed Objects for Model Loop '''
 
-# Constants
-pi = np.pi
-
-runtime = len( wavelength_dividors ) # how many models run
+runtime = 1 # how many models run
 
 # Functions
-def seasonal_forcing( tau ):
-    coef = 2 * pi / ( wavelength / div )
-    F = amplitude * np.sin( coef * tau ) + vshift
+def linear_growth( tau ):
+    F = 6.0 + growthrate*tau
     return F
 
 # NOTE: The current max amplitude is
@@ -154,7 +136,6 @@ store_final_ens_3d = np.zeros(
 ''' Running Model Loop '''
 
 for i in range(runtime):
-    div = wavelength_dividors[i]
     # MODEL LOOP:
     # Runs l96 model with constant forcing
     # until end of specified runtime (eqbm).
@@ -162,7 +143,7 @@ for i in range(runtime):
     # saved for later plotting and analysis.
    
     # RUNS MODEL AND SAVES OUTPUT INTO DICT:
-    output_dict = run_model( model_settings, seasonal_forcing )
+    output_dict = run_model( model_settings, linear_growth )
 
     # Save time-series output into 2d storage arrays
     store_tseries_mean_2d[i,:] += output_dict.get(
@@ -177,7 +158,7 @@ for i in range(runtime):
     store_tseries_kurt_2d[i,:] += output_dict.get(
         "tseries_mean_kurt"
         )
-    store_tseries_forcing_2d[i,:] += seasonal_forcing( time_arr1d ) 
+    store_tseries_forcing_2d[i,:] += linear_growth( time_arr1d ) 
 
     # Save final eqbm values into 1d storage arrays
     store_eqbm_mean_1d[i] += output_dict.get(
@@ -300,8 +281,7 @@ def distr_plotter( i : int ):
 
     axs.set_title(f"Final Distribution", fontweight='bold')
     plt.tight_layout()
-    freq = np.round( (wavelength / wavelength_dividors[i]) / 73, decimals=3)
-    plt.savefig( f'{plot_save_directory}sinuforcing_distr_plot_{freq}_year.png' )
+    plt.savefig( f'{plot_save_directory}test_distr_plot_{growthrate}.png' )
 
     print(f'Distribution plot drawn . . . ')
 
@@ -313,96 +293,37 @@ def tseries_plotter( i : int):
     # Init figure
     fig, axs = plt.subplots( nrows=5, ncols=1, figsize=(6,13))
 
-    crests = store_tseries_forcing_2d[ i, : ]
-    crest_mask = crests >= 10.99
-    peaks_time_1d = time_arr1d[crest_mask]
-    leng = len( peaks_time_1d )
-    print(leng)
-
     # 0th subplot
     ax = axs[0]
     ax.set_title( f'Forcing With Time' )
     ax.set_xlabel('')
     ax.set_ylabel('F value')
     ax.plot( time_arr1d, store_tseries_forcing_2d[i,:], '-r')
-    # for peak in range( leng ):
-    #     ax.axvline(
-    #         peaks_time_1d[peak],
-    #         color='k',
-    #         linestyle=':'
-    #     )
-    #ax.set_xlim(20,30)
+
 
     # 1st subplot =====================
     ax = axs[1]
     ax.set_title( r'RMS of All Ens Means (all gridpoints)' )
     ax.set_xlabel('')
     ax.plot( time_arr1d, store_tseries_mean_2d[i,:], '-r')
-    ax.axhline(
-        2.02615, 
-        color='lightskyblue', 
-        linestyle=':', 
-        label='eqbm avg at minimum forcing'
-    )
-    ax.axhline(
-        2.6877, 
-        color='crimson', 
-        linestyle=':', 
-        label='eqbm avg at maximum forcing'
-    )
-    # for peak in range( leng ):
-    #     ax.axvline(
-    #         peaks_time_1d[peak],
-    #         color='k',
-    #         linestyle=':'
-    #     )
-    #ax.set_ylim(0,3.)
-    #ax.set_xlim(20,30)
-    ax.legend()
-
     # 2nd subplot =====================
     ax = axs[2]
     ax.set_title( r'RMS $\sigma$' )
     ax.set_xlabel('')
     ax.plot( time_arr1d, store_tseries_sigma_2d[i,:], '-r')
-    ax.axhline(
-        2.827, 
-        color='lightskyblue', 
-        linestyle=':', 
-        label='eqbm sigma at minimum forcing'
-    )
-    ax.axhline(
-        4.7214, 
-        color='crimson', 
-        linestyle=':', 
-        label='eqbm sigma at maximum forcing'
-    )
-    # for peak in range( leng ):
-    #     ax.axvline(
-    #         peaks_time_1d[peak],
-    #         color='k',
-    #         linestyle=':'
-    #     )
-    #ax.set_ylim(0,6.)
-    #ax.set_xlim(20,30)
-    ax.legend()
-
-
     # 3rd subplot =====================
     ax = axs[3]
-    ax.set_title( r'RMS of All Ens Skews' )
+    ax.set_title( r'Mean of All Ens Skews' )
     ax.set_xlabel('')
     ax.plot( time_arr1d, store_tseries_skew_2d[i,:], '-r')
-
     # 4th subplot =====================
     ax = axs[4]
-    ax.set_title( r'RMS of All Ens Kurtosis' )
+    ax.set_title( r'Mean of All Ens Kurtosis' )
     ax.set_xlabel('Model Time', fontsize=12)
     ax.plot( time_arr1d, store_tseries_kurt_2d[i,:], '-r')
     
     plt.tight_layout()
-    freq = np.round( (wavelength / wavelength_dividors[i]) / 73, decimals=3)
-    plt.savefig( f'{plot_save_directory}sinuforcing_tseries_plot_{freq}_year.png' )
+    plt.savefig( f'{plot_save_directory}test_growth_forcing_{growthrate}.png' )
 
     print(f'Timeseries plot drawn . . . ')
 
