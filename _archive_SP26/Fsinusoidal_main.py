@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 model_settings = config(
     num_gridpts = 40,      
     num_members   = 4000,  
-    tot_num_steps = 5840   #  5840
+    tot_num_steps = 10000   #  5840 is 1 year for dt=0.05
 )
 
 # Write data on/off
@@ -40,7 +40,7 @@ amplitude = 2.5
 wavelength = (73)  # How long one oscillation should take in model time tau
                  # For seasonal sinusoid, let 1 tau = 5 days =>
                  # dt = 0.05 = ~6 hours
-wavelength_dividors = [ 1, 2, 4, 8, 16, 24, 36 ]
+wavelength_dividors = [ 365 ]
 div = wavelength_dividors[0]
 
 # In the midlatitudes, winter can experience roughly 50% less
@@ -83,8 +83,8 @@ def seasonal_forcing( tau ):
 
 time_arr1d = np.arange( 
     0, 
-    ( model_settings.tot_num_steps )* 0.05 ,
-    0.05,
+    ( model_settings.tot_num_steps )* 0.0042 ,
+    0.0042,
     dtype='f8'
     )
 
@@ -305,6 +305,7 @@ def distr_plotter( i : int ):
 
     print(f'Distribution plot drawn . . . ')
 
+zoom_end = 22
 
 def tseries_plotter( i : int):
     # Plots each equilibrium metric wrt 
@@ -314,7 +315,7 @@ def tseries_plotter( i : int):
     fig, axs = plt.subplots( nrows=5, ncols=1, figsize=(6,13))
 
     crests = store_tseries_forcing_2d[ i, : ]
-    crest_mask = crests >= 10.99
+    crest_mask = crests >= 10.996
     peaks_time_1d = time_arr1d[crest_mask]
     leng = len( peaks_time_1d )
     print(leng)
@@ -325,13 +326,13 @@ def tseries_plotter( i : int):
     ax.set_xlabel('')
     ax.set_ylabel('F value')
     ax.plot( time_arr1d, store_tseries_forcing_2d[i,:], '-r')
-    # for peak in range( leng ):
-    #     ax.axvline(
-    #         peaks_time_1d[peak],
-    #         color='k',
-    #         linestyle=':'
-    #     )
-    #ax.set_xlim(20,30)
+    for peak in range( leng ):
+        ax.axvline(
+            peaks_time_1d[peak],
+            color='k',
+            linestyle=':'
+        )
+    ax.set_xlim(20,zoom_end)
 
     # 1st subplot =====================
     ax = axs[1]
@@ -350,14 +351,14 @@ def tseries_plotter( i : int):
         linestyle=':', 
         label='eqbm avg at maximum forcing'
     )
-    # for peak in range( leng ):
-    #     ax.axvline(
-    #         peaks_time_1d[peak],
-    #         color='k',
-    #         linestyle=':'
-    #     )
-    #ax.set_ylim(0,3.)
-    #ax.set_xlim(20,30)
+    for peak in range( leng ):
+        ax.axvline(
+            peaks_time_1d[peak],
+            color='k',
+            linestyle=':'
+        )
+    ax.set_ylim(1.6,2.85)
+    ax.set_xlim(20,zoom_end)
     ax.legend()
 
     # 2nd subplot =====================
@@ -377,14 +378,14 @@ def tseries_plotter( i : int):
         linestyle=':', 
         label='eqbm sigma at maximum forcing'
     )
-    # for peak in range( leng ):
-    #     ax.axvline(
-    #         peaks_time_1d[peak],
-    #         color='k',
-    #         linestyle=':'
-    #     )
-    #ax.set_ylim(0,6.)
-    #ax.set_xlim(20,30)
+    for peak in range( leng ):
+        ax.axvline(
+            peaks_time_1d[peak],
+            color='k',
+            linestyle=':'
+        )
+    ax.set_ylim(2.6,5)
+    ax.set_xlim(20,zoom_end)
     ax.legend()
 
 
@@ -393,16 +394,61 @@ def tseries_plotter( i : int):
     ax.set_title( r'RMS of All Ens Skews' )
     ax.set_xlabel('')
     ax.plot( time_arr1d, store_tseries_skew_2d[i,:], '-r')
+    for peak in range( leng ):
+        ax.axvline(
+            peaks_time_1d[peak],
+            color='k',
+            linestyle=':'
+        )
+    ax.axhline(
+        0.1228, 
+        color='lightskyblue', 
+        linestyle=':', 
+        label='eqbm skew at minimum forcing'
+    )
+    ax.axhline(
+        0.10352, 
+        color='crimson', 
+        linestyle=':', 
+        label='eqbm skew at maximum forcing'
+    )
+    ax.set_xlim(20,zoom_end)
+    ax.set_ylim(0.07,0.15)
+    ax.legend()
+
 
     # 4th subplot =====================
     ax = axs[4]
     ax.set_title( r'RMS of All Ens Kurtosis' )
     ax.set_xlabel('Model Time', fontsize=12)
     ax.plot( time_arr1d, store_tseries_kurt_2d[i,:], '-r')
+    for peak in range( leng ):
+        ax.axvline(
+            peaks_time_1d[peak],
+            color='k',
+            linestyle=':'
+        )
+    ax.axhline(
+        0.61754, 
+        color='lightskyblue', 
+        linestyle=':', 
+        label='eqbm kurt at minimum forcing'
+    )
+    ax.axhline(
+        0.42938, 
+        color='crimson', 
+        linestyle=':', 
+        label='eqbm kurt at maximum forcing'
+    )
+    ax.set_xlim(20,zoom_end)
+    ax.set_ylim(0.2, 0.8)
+    ax.legend()
+
+
     
     plt.tight_layout()
     freq = np.round( (wavelength / wavelength_dividors[i]) / 73, decimals=3)
-    plt.savefig( f'{plot_save_directory}sinuforcing_tseries_plot_{freq}_year.png' )
+    plt.savefig( f'{plot_save_directory}sinuforcing_tseries_plot_zoomed_diurnal.png' )
 
     print(f'Timeseries plot drawn . . . ')
 

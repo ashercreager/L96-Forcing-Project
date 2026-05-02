@@ -19,7 +19,7 @@ dt=0.05 # ~ 6 hours, chosen so that a unit of time represents ~ 5 days,
         # remains accurate.
         # 
 
-
+dt=0.0042 # ~ 30 mins, only for zoomed in diurnal forcings
 
 
 
