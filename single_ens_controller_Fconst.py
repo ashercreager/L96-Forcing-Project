@@ -1,14 +1,15 @@
 '''
 
     This script is the main control interface
-    for running a *single* ens with different 
-    settings.
+    for running a *single* Fconst ens with 
+    different settings.
 
 
 '''
 
 # packages
 from run_model import Config, Main
+import sys
 
 
 
@@ -22,9 +23,11 @@ Fconst_cfg = Config(
 )
 
 # Forcing function
-F = 6.0
+F = float( sys.argv[1] )
 def const_forcing( tau ):
     return F
+
+print(type(F))
 
 # Save-name
 Fconst_cfg.save_name = f'Fconst_{F}'
