@@ -1,5 +1,6 @@
 ''' 
 Python functions to integrate Lorenz '96 model 
+one time-step into the future via RK4
 
 Dimensions of x_ens: [member #, gridpt #]
 
@@ -19,7 +20,7 @@ dt=0.05 # ~ 6 hours, chosen so that a unit of time represents ~ 5 days,
         # remains accurate.
         # 
 
-dt=0.0042 # ~ 30 mins, only for zoomed in diurnal forcings
+# dt=0.0042 # ~ 30 mins, only for zoomed in diurnal forcings
 
 
 
