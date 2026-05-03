@@ -1,3 +1,4 @@
+
 '''
     This script contains the main loop
     necessary to run the lorenz96 model
@@ -17,22 +18,37 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import lorenz96_model as l96
+from dataclasses import dataclass
+import pickle
 
 
 '''         MODEL-SETTINGS + DEFAULT VALUES        '''
-class config:
-    num_gridpts : int = 40   # number of grids along lat-ring
-    ens_size    : int = 4000 # number of members in ens
-    tot_runtime : int = 300  # how long model should run (steps)
-    # NOTE: runtime in tau is given by dt * tot_runtime
+@dataclass
+class Config:
+    # Number of grids along lat-ring
+    num_gridpts : int = 40
+
+    # Number of members in ens
+    ens_size : int = 4000
+
+    # How long model should run in time-steps
+    # NOTE: total runtime in tau = dt * tot_runtime
+    tot_runtime : int = 300
+
+    # Ensuring reproducibility
     random_seed : int = 0
-    save_dir    : str 
-    F_attribute : str # Forcing attribute, used to describe data 
-    dt          : float = 0.05 # currently unimplemented
+
+    # Save settings
+    save_dir : str = ""
+    save_name : str = ""
+
+    # Other
+    dt : float = 0.05 # currently unimplemented
+
 
 
 # Spin-up function
-def init_ensemble( cfg : config, forcing_func ):
+def init_ensemble( cfg : Config, forcing_func ):
     ''' 
         Generates an initial-state (tau = 0) ensemble 
         of slightly perturbed members from a single
@@ -42,7 +58,8 @@ def init_ensemble( cfg : config, forcing_func ):
     # For reproducibility, reset random seed each call
     np.random.seed( cfg.random_seed )
 
-    # Define the ensemble member which all other members will be perturbed from (reference member)
+    # Define the ensemble member which all other members will be perturbed from -
+    # called the 'reference member'
     x_single = np.random.normal( loc=0, scale=1e-1, size=(1, cfg.num_gridpts) )
 
     # Let l96 run for 1000 steps on reference state so it attains model-accurate values
@@ -58,7 +75,9 @@ def init_ensemble( cfg : config, forcing_func ):
     return x_ens2d_init
 
 
-def main( cfg : config, forcing_func ):
+
+
+def Main( cfg : Config, forcing_func ):
 
     ''' Function to run l96 model to a specified
         number of steps on the entire ensemble
@@ -71,24 +90,31 @@ def main( cfg : config, forcing_func ):
     # Defining x_ens2d before first simulation run
     x_ens2d = init_ensemble( cfg, forcing_func )
 
-
-    # Checking that a proper save directory has been
-    # provided - if not, quit program
-    if cfg.save_dir is None:
-        print( 'ERROR: no save directory provided in running model' ) 
-        print( 'Nothing to do with model output, quitting...' )
-        quit()
+    # Initializing 3d numpy array to store x_ens2d
+    # at each time-step --> this is the array which
+    # gets saved into a pickle file
+    x3d = np.zeros( (
+        cfg.tot_runtime, 
+        cfg.ens_size, 
+        cfg.num_gridpts
+    ) )
 
     # Loop model over n consecutive steps
     tau = 0.
     for i in range( cfg.tot_runtime ):
 
-        # Dump data as pickle file
-        # TODO: ACTUALLY save data somewhere
+        # Storing current step's x_ens2d
+        x3d[i,:,:] = x_ens2d
+        
         # Advance state 1 step into the future
         x_ens2d, tau = l96.multistep( 
             x_ens2d, tau, forcing_func, 1 
         )
 
     # --------- End loop --------\ 
-    
+
+    # Dumping pickle file containing x3d
+    # into correct location
+    output_data = { "output_data" : x3d }
+    fname = cfg.save_dir + cfg.save_name + '.pkl'
+    pickle.dump( output_data, open( fname, 'wb' ) )
