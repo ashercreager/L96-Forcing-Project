@@ -8,11 +8,11 @@
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=creager.52@osu.edu
 
-export Fvals=$(seq -f "%.1f" 6.1 0.1 9.0)
+export Fvals=$(seq -f "%.1f" 5.0 0.1 15.0)
 
 for F in $Fvals
 do
   echo "$F"
-  python single_ens_controller_Fconst.py "$F" > "${F}_log" &
+  python single_ens_Fconst.py "$F" > "${F}_log" &
 done
 wait

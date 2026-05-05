@@ -6,12 +6,9 @@
     discretized latitude circle. Forcing 
     F can be a constant or variable function.
 
-    When running a single ensemble, script
-    can dump entire model solution to a 
-    pickle file. 
+    When done running a single ensemble, script
+    will dump eqbm metrics to a pickle file. 
 
-    ( For super ensembles, this
-    should probably be turned off. )
 '''
 
 # Packages
@@ -19,6 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import lorenz96_model as l96
 from dataclasses import dataclass
+import functions
 import pickle
 
 
@@ -92,7 +90,7 @@ def Main( cfg : Config, forcing_func ):
 
     # Initializing 3d numpy array to store x_ens2d
     # at each time-step --> this is the array which
-    # gets saved into a pickle file
+    # gets input into compute_eqbm_metrics.
     x3d = np.zeros( (
         cfg.tot_runtime, 
         cfg.ens_size, 
@@ -113,8 +111,12 @@ def Main( cfg : Config, forcing_func ):
 
     # --------- End loop --------\ 
 
-    # Dumping pickle file containing x3d
-    # into correct location
-    output_data = { "output_data" : x3d }
+    # Computing eqbm metrics of model run
+    analyzed_data = functions.compute_eqbm_metrics(
+        x3d, cfg.ens_size 
+    )
+
+    # Dumping pickle file containing analyzed
+    # data into correct location
     fname = cfg.save_dir + cfg.save_name + '.pkl'
-    pickle.dump( output_data, open( fname, 'wb' ) )
+    pickle.dump( analyzed_data, open( fname, 'wb' ) )
