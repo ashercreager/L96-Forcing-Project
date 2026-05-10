@@ -17,17 +17,15 @@ import sys
 
 Fconst_cfg = Config(
     num_gridpts = 40,    # number of grids along lat-ring
-    ens_size    = 10000, # number of members in ens
+    ens_size    = 12000, # number of members in ens
     tot_runtime = 400,   # how long model should run (steps)
     save_dir    = 'analyzed_data/Fconst/',
 )
 
 # Forcing function
-F = float( sys.argv[1] )
+F = 10 #float( sys.argv[1] )
 def const_forcing( tau ):
     return F
-
-print(type(F))
 
 # Save-name
 Fconst_cfg.save_name = f'Fconst_{F}'

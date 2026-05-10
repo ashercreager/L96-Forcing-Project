@@ -110,11 +110,13 @@ def Main( cfg : Config, forcing_func ):
         )
 
     # --------- End loop --------\ 
+    print("Model run complete")
 
     # Computing eqbm metrics of model run
     analyzed_data = functions.compute_eqbm_metrics(
         x3d, cfg.ens_size 
     )
+    print("Finished analyzing data")
 
     # Dumping pickle file containing analyzed
     # data into correct location
