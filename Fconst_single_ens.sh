@@ -13,6 +13,6 @@ export Fvals=$(seq -f "%.1f" 8.1 0.1 11.0)
 for F in $Fvals
 do
   echo "$F"
-  python single_ens_Fconst.py "$F" > "${F}_log" &
+  python Fconst_single_ens.py "$F" > "${F}_log" &
 done
 wait
