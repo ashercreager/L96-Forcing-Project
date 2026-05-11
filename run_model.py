@@ -97,12 +97,19 @@ def Main( cfg : Config, forcing_func ):
         cfg.num_gridpts
     ) )
 
+    # Initializing a 1d array to store F at
+    # every timestep - useful for variable F
+    F_tseries = np.zeroes( cfg.tot_runtime )
+
     # Loop model over n consecutive steps
     tau = 0.
     for i in range( cfg.tot_runtime ):
 
         # Storing current step's x_ens2d
         x3d[i,:,:] = x_ens2d
+
+        # Storing current step's F value
+        F_tseries[i] = forcing_func( tau )
         
         # Advance state 1 step into the future
         x_ens2d, tau = l96.multistep( 
@@ -118,8 +125,14 @@ def Main( cfg : Config, forcing_func ):
     )
     print("Finished analyzing data")
 
+    # Other variables to store into dumped pickle file
+    analyzed_data['F'] = float( forcing_func(0) ) # ONLY USEFUL FOR FCONST
+
+    analyzed_data['dt'] = cfg.dt
+
+    analyzed_data['F_tseries'] = F_tseries # USEFUL FOR VARYING F
+
     # Dumping pickle file containing analyzed
     # data into correct location
-    analyzed_data['F'] = float( forcing_func(0) ) 
     fname = cfg.save_dir + cfg.save_name + '.pkl'
     pickle.dump( analyzed_data, open( fname, 'wb' ) )
