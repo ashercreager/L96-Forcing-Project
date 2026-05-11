@@ -120,5 +120,6 @@ def Main( cfg : Config, forcing_func ):
 
     # Dumping pickle file containing analyzed
     # data into correct location
+    analyzed_data['F'] = float( forcing_func(0) ) 
     fname = cfg.save_dir + cfg.save_name + '.pkl'
     pickle.dump( analyzed_data, open( fname, 'wb' ) )
