@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 import lorenz96_model as l96
 from dataclasses import dataclass
 import functions
-import pickle
 
 
 '''         MODEL-SETTINGS + DEFAULT VALUES        '''
@@ -137,7 +136,5 @@ def Main( cfg : Config, forcing_func ):
     analyzed_data['num_members'] = cfg.ens_size 
     analyzed_data['random_seed'] = cfg.random_seed
 
-    # Dumping pickle file containing analyzed
-    # data into correct location
-    fname = cfg.save_dir + cfg.save_name + '.pkl'
-    pickle.dump( analyzed_data, open( fname, 'wb' ) )
+    # Sending analyzed_data to controller script
+    return analyzed_data

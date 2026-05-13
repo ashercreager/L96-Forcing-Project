@@ -9,7 +9,9 @@
 
 # packages
 from run_model import Config, Main
+import pickle
 import sys
+
 
 
 
@@ -20,10 +22,11 @@ Fconst_cfg = Config(
     ens_size    = 24000, # number of members in ens
     tot_runtime = 400,   # how long model should run (steps)
     save_dir    = 'analyzed_data/Fconst/single_ens/',
+    random_seed = 1
 )
 
 # Forcing function
-F = float( sys.argv[1] )
+F = 7.0 #float( sys.argv[1] )
 def const_forcing( tau ):
     return F
 
@@ -32,4 +35,7 @@ Fconst_cfg.save_name = f'Fconst_{F}'
 
 
 '''     RUNNING MODEL WITH GIVEN SETTINGS    '''
-Main( Fconst_cfg, const_forcing )
+analyzed_data = Main( Fconst_cfg, const_forcing )
+
+fname = Fconst_cfg.save_dir + Fconst_cfg.save_name + '.pkl'
+pickle.dump( analyzed_data, open( fname, 'wb' ) )
