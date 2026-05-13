@@ -99,7 +99,8 @@ def Main( cfg : Config, forcing_func ):
 
     # Initializing a 1d array to store F at
     # every timestep - useful for variable F
-    F_tseries = np.zeroes( cfg.tot_runtime )
+    F_tseries = np.zeros( cfg.tot_runtime )
+    
 
     # Loop model over n consecutive steps
     tau = 0.
@@ -128,9 +129,13 @@ def Main( cfg : Config, forcing_func ):
     # Other variables to store into dumped pickle file
     analyzed_data['F'] = float( forcing_func(0) ) # ONLY USEFUL FOR FCONST
 
-    analyzed_data['dt'] = cfg.dt
-
     analyzed_data['F_tseries'] = F_tseries # USEFUL FOR VARYING F
+
+    # saving cfg values    
+    analyzed_data['dt'] = cfg.dt
+    analyzed_data['num_steps'] = cfg.tot_runtime
+    analyzed_data['num_members'] = cfg.ens_size 
+    analyzed_data['random_seed'] = cfg.random_seed
 
     # Dumping pickle file containing analyzed
     # data into correct location

@@ -109,7 +109,7 @@ def compute_eqbm_metrics( x3d, num_members ):
     # 'mean', 'std_dev', 'skew', 'kurt',
     data_dict = {}
     data_dict[ 'mean' ] = model_mean_1d
-    data_dict[ 'std_dev' ] = model_std_1d
+    data_dict[ 'std' ] = model_std_1d
     data_dict[ 'skew' ] = model_skew_1d
     data_dict[ 'kurt' ] = model_kurt_1d
 
