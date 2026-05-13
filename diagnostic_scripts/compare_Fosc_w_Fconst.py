@@ -21,7 +21,7 @@ savedir = '../plots/Fosc_vs_Feqbm/'
 # Keys to extract from each pickle file
 eqbm_keys = {
     'mean' : 'eqbm_mean',
-    'std' : 'eqbm_std_dev',
+    'std' : 'eqbm_std',
     'skew' : 'eqbm_skew',
     'kurt' : 'eqbm_kurt'
 }

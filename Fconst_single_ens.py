@@ -17,7 +17,7 @@ import sys
 
 Fconst_cfg = Config(
     num_gridpts = 40,    # number of grids along lat-ring
-    ens_size    = 15000, # number of members in ens
+    ens_size    = 24000, # number of members in ens
     tot_runtime = 400,   # how long model should run (steps)
     save_dir    = 'analyzed_data/Fconst/single_ens/',
 )

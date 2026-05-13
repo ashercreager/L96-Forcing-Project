@@ -3,12 +3,12 @@
 #SBATCH --time=1:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=39
-#SBATCH --job-name=pickles
+#SBATCH --job-name=L96ForcingProject
 #SBATCH --account=PAS2635
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=creager.52@osu.edu
 
-export Fvals=$(seq -f "%.1f" 11.1 0.1 15.0)
+export Fvals=$(seq -f "%.1f" 12.0 0.1 15.0)
 
 for F in $Fvals
 do
