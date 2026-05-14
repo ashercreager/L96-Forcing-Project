@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 # user-settings
-savedir = '../plots/Fconst/timeseries/'
-loaddir = '../analyzed_data/Fconst/single_ens/'
+savedir = 'plots/Fconst/timeseries/'
+loaddir = 'analyzed_data/Fconst/super_ens/'
 
 # Loading every analyzed_data dict to be plotted
 # and saving into a dict containing everything
@@ -77,8 +77,6 @@ def plot( data ):
     plt.savefig( fname )
 
     plt.close()
-
-    print( data['random_seed'] )
-
-plot( datadict['7.0'] )
+    
+plot( datadict['8.0'] )
 

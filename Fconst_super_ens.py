@@ -28,11 +28,11 @@ import sys
 # user-settings
 cfg = Config(
     num_gridpts = 40,    # number of grids along lat-ring
-    ens_size    = 8000, # number of members in ens
+    ens_size    = 5000, # number of members in ens
     tot_runtime = 500,   # how long model should run (steps)
     save_dir    = 'analyzed_data/Fconst/single_ens/'
 )
-seeds = np.arange(0,17)
+seeds = np.arange(0,41)
 
 # Defining forcing function F
 F = float( sys.argv[1] )

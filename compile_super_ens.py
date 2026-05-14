@@ -14,7 +14,8 @@ from pathlib import Path
 
 # user-settings
 rootpath = Path('analyzed_data/Fconst/single_ens/')
-F_vals = np.arange(5.0, 15.1, 0.1)
+F_vals = np.arange(5.0, 15.0, 0.1).round(2)
+savedir = 'analyzed_data/Fconst/super_ens/'
 
 # Compiling function for a single F value 
 def compile( F ):
@@ -28,27 +29,28 @@ def compile( F ):
         data = pickle.load( open(fname, 'rb') )
 
         for key in data:
-            if key not in compiled_data:
-                compiled_data[key] = []
-                compiled_data[key].append(
-                    data[key]
-                )
-            else:
-                compiled_data[key].append(
-                    data[key]
-                )
-        
-        # Averaging
-        for key, compiled_arr in compiled_data.items():
-            compiled_arr = np.array( compiled_arr )
-            compiled_arr = np.mean( compiled_arr, axis=0 )
 
+            if key not in compiled_data:
+                # Create key if non existent
+                compiled_data[key] = []
+
+            compiled_data[key].append( data[key] )
+        # -----------------------------------\
     # ---------------------------------\
 
+    # Averaging
+    for key, datalist in compiled_data.items():
+        # COmputing the super-ens average of each metric
+        arr = np.array( datalist )
+        compiled_arr = np.mean( arr, axis=0 )
+        # Plugging back into compiled_data
+        compiled_data[key] = compiled_arr
 
-    
-            
-    
+    # Saving
+    savename = savedir + f'super_ens_{F}.pkl'
+    pickle.dump( compiled_data, open(savename, 'wb') )
 
 
-compile( 8.0 )
+# Looping over several F values
+for F in F_vals:
+    compile(F)

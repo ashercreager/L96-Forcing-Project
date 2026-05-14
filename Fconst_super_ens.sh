@@ -2,7 +2,7 @@
 #SBATCH --cluster=pitzer
 #SBATCH --time=1:00:00
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=40
+#SBATCH --ntasks-per-node=39
 #SBATCH --job-name=L96ForcingProject
 #SBATCH --account=PAS2635
 #SBATCH --mail-type=BEGIN,END,FAIL
