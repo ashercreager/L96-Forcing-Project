@@ -25,7 +25,7 @@ Fosc_cfg = Config(
 
 # Parameter
 A = 3 # Amplitude
-wavelength = (73)  # How long one oscillation should take in model time tau
+wavelength = (73 / 4)  # How long one oscillation should take in model time tau
                    # For seasonal oscillation, let 1 tau = 5 days =>
                    #               dt = 0.05 = ~6 hours
 vshift = 9 # Mean forcing
@@ -52,4 +52,7 @@ Fosc_cfg.save_name = f'Fosc_{year_frac}_year'
 
 
 '''     RUNNING MODEL WITH GIVEN SETTINGS    '''
-Main( Fosc_cfg, osc_forcing )
+analyzed_data = Main( Fosc_cfg, osc_forcing )
+
+fname = Fconst_cfg.save_dir + Fconst_cfg.save_name + '.pkl'
+pickle.dump( analyzed_data, open( fname, 'wb' ) )

@@ -1,8 +1,8 @@
 # TODO LIST
 
-# 1. Write plot scripts to cross check current progress w/
-# previous work
+# Run several higher frequency Fosc runs
+# and then plug into diagnostic script
 
-# 2. Write sinusoidal F script
+# ChatGPT deep research
 
-# 3. Begin work on Task 1
+# :0

@@ -14,7 +14,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 # user-settings
-savedir = '../plots/Fosc_vs_Feqbm/'
+savedir = 'plots/Fosc_vs_Feqbm/'
 
 # ============ LOADING DATA ================
 
@@ -34,7 +34,7 @@ F_vals = []
 
 # Looping over all pickle files and storing the 
 # the wanted data into eqbm_vals and F_vals
-fdir = '../analyzed_data/Fconst/single_ens/'
+fdir = 'analyzed_data/Fconst/super_ens/'
 path = Path(fdir)
 
 for file in path.glob('*.pkl'):
@@ -50,7 +50,7 @@ for file in path.glob('*.pkl'):
 # ------------- End Loop -------------- \
 
 # Loading Fosc metric data (hardcoded for now)
-fdir = '../analyzed_data/Fosc/' 
+fdir = 'analyzed_data/Fosc/' 
 fname = fdir + 'Fosc_1.0_year.pkl'
 Fosc = pickle.load( open(fname, 'rb') )
 
@@ -94,7 +94,7 @@ time_arr1d = np.arange(
 )
 
 # Setting up empty subplots
-fig, axs = plt.subplots(nrows=2, ncols=4, figsize=(20,8))
+fig, axs = plt.subplots(nrows=2, ncols=4, figsize=(21,8))
 
 # First plotting F timeseries
 for col in range(4):
@@ -123,7 +123,6 @@ for col, key in enumerate( eqbm_keys ):
     )
 
     # Customizing
-    axs[1,col].set_ylabel('Mean', fontsize = 18)
     axs[1,col].set_xlabel('Model Time (tau)', fontsize = 18)
     axs[1,col].legend(fontsize=15) 
 # --------------------------\
@@ -147,8 +146,13 @@ for row in range(2):
             axs[row,col].set_ylim(minlim,maxlim)
 # --------------------------\
 
+# Further customizing
+axs[0,0].set_ylabel('F', fontsize=22)
+axs[1,0].set_ylabel('RMS Mean', fontsize = 18)
+axs[1,1].set_ylabel('RMS Std', fontsize = 18)
+axs[1,2].set_ylabel('RMS Skew', fontsize = 18)
+axs[1,3].set_ylabel('RMS Kurt', fontsize = 18)
 
-# fig.suptitle('', fontsize=20)
 plt.tight_layout()
 
 # Saving plot
