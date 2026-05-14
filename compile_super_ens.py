@@ -14,7 +14,7 @@ from pathlib import Path
 
 # user-settings
 rootpath = Path('analyzed_data/Fconst/single_ens/')
-F_vals = np.arange(5.0, 15.0, 0.1).round(2)
+F_vals = np.arange(5.0, 15.1, 0.1).round(2)
 savedir = 'analyzed_data/Fconst/super_ens/'
 
 # Compiling function for a single F value 
