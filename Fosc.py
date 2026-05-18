@@ -11,6 +11,7 @@
 from run_model import Config, Main
 import sys
 import numpy as np
+import pickle
 
 
 
@@ -25,7 +26,7 @@ Fosc_cfg = Config(
 
 # Parameter
 A = 3 # Amplitude
-wavelength = (73 / 4)  # How long one oscillation should take in model time tau
+wavelength = (73 / 32)  # How long one oscillation should take in model time tau
                    # For seasonal oscillation, let 1 tau = 5 days =>
                    #               dt = 0.05 = ~6 hours
 vshift = 9 # Mean forcing
@@ -47,12 +48,12 @@ def seasonal_forcing( tau ):
     F = A * np.sin( coef * tau ) + vshift
 
 # Save-name
-year_frac = np.round( wavelength / 73, decimals=3 )
+year_frac = np.round( wavelength / 73, decimals=4 )
 Fosc_cfg.save_name = f'Fosc_{year_frac}_year'
 
 
 '''     RUNNING MODEL WITH GIVEN SETTINGS    '''
 analyzed_data = Main( Fosc_cfg, osc_forcing )
 
-fname = Fconst_cfg.save_dir + Fconst_cfg.save_name + '.pkl'
+fname = Fosc_cfg.save_dir + Fosc_cfg.save_name + '.pkl'
 pickle.dump( analyzed_data, open( fname, 'wb' ) )

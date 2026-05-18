@@ -51,7 +51,7 @@ for file in path.glob('*.pkl'):
 
 # Loading Fosc metric data (hardcoded for now)
 fdir = 'analyzed_data/Fosc/' 
-fname = fdir + 'Fosc_1.0_year.pkl'
+fname = fdir + 'Fosc_0.0312_year.pkl'
 Fosc = pickle.load( open(fname, 'rb') )
 
 #  ========== DETERMINING EQBM-OSC ===========
@@ -130,7 +130,7 @@ for col, key in enumerate( eqbm_keys ):
 # Defining window limits
 for row in range(2):
     for col in range(4):
-        axs[row,col].set_xlim(10,100)
+        axs[row,col].set_xlim(25,35)
 
         if row == 1:
             key = list(eqbm_keys)[col]
@@ -156,5 +156,5 @@ axs[1,3].set_ylabel('RMS Kurt', fontsize = 18)
 plt.tight_layout()
 
 # Saving plot
-plt.savefig( savedir + 'test.png' )
+plt.savefig( savedir + '0.0312year_wave.png' )
 plt.close()
