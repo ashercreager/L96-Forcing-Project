@@ -18,7 +18,7 @@ loaddir = 'analyzed_data/Fconst/single_ens/default_runs/'
 def plot( data ):
     # Input: data dictionary containing
     # all eqbm metrics and cfg settings
-    F = str( data['F'].round(2) )
+    F = str( data['F'] ) 
 
     # Defining 1d time-array (x-axis)
     time_arr1d = data['dt'] * np.arange(data['num_steps'], dtype='f8')

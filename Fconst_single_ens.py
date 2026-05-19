@@ -21,7 +21,7 @@ Fconst_cfg = Config(
     num_gridpts = 40,    # number of grids along lat-ring
     ens_size    = 4000, # number of members in ens
     tot_runtime = 5000,   # how long model should run (steps)
-    save_dir    = 'analyzed_data/Fconst/single_ens/default_runs',
+    save_dir    = 'analyzed_data/Fconst/single_ens/default_runs/',
     random_seed = 0
 )
 
