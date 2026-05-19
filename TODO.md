@@ -1,5 +1,7 @@
 # TODO LIST
 
+# Remake eqbm vs F plot
+
 # Run Fosc with different seeds (same freq!) and confirm that
 # distributions follow same oscillation as seed=0
 
