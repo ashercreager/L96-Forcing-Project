@@ -41,7 +41,7 @@ class Config:
 
     # Other
     dt : float = 0.05 # currently unimplemented
-    save_raw = False
+    save_raw : bool = False
 
 
 
