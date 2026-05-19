@@ -29,7 +29,7 @@ import sys
 cfg = Config(
     num_gridpts = 40,    # number of grids along lat-ring
     ens_size    = 5000, # number of members in ens
-    tot_runtime = 500,   # how long model should run (steps)
+    tot_runtime = 2000,   # how long model should run (steps)
     save_dir    = 'analyzed_data/Fconst/single_ens/'
 )
 seeds = np.arange(0,41)

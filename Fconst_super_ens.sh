@@ -8,7 +8,7 @@
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=creager.52@osu.edu
 
-export Fvals=$(seq -f "%.1f" 13.0 0.1 15.0)
+export Fvals=$(seq -f "%.1f" 5.0 0.1 5.5)
 
 for F in $Fvals
 do

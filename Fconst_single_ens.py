@@ -19,14 +19,14 @@ import sys
 
 Fconst_cfg = Config(
     num_gridpts = 40,    # number of grids along lat-ring
-    ens_size    = 24000, # number of members in ens
-    tot_runtime = 400,   # how long model should run (steps)
-    save_dir    = 'analyzed_data/Fconst/single_ens/',
-    random_seed = 1
+    ens_size    = 4000, # number of members in ens
+    tot_runtime = 5000,   # how long model should run (steps)
+    save_dir    = 'analyzed_data/Fconst/single_ens/default_runs',
+    random_seed = 0
 )
 
 # Forcing function
-F = 7.0 #float( sys.argv[1] )
+F = 5.3 #float( sys.argv[1] )
 def const_forcing( tau ):
     return F
 

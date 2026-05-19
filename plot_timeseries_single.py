@@ -6,23 +6,13 @@ from pathlib import Path
 
 # user-settings
 savedir = 'plots/Fconst/timeseries/'
-loaddir = 'analyzed_data/Fconst/super_ens/'
-
-# Loading every analyzed_data dict to be plotted
-# and saving into a dict containing everything
-datadict = {}
-
-fpath = Path(loaddir)
-
-for file in fpath.glob('*.pkl'):
-    # Loading pickle file
-    fname = loaddir + file.name
-    data = pickle.load( open(fname, 'rb') )
-
-    key_name = str( data['F'] )
-
-    # Storing dict inside datadict
-    datadict[key_name] = data
+files = [
+    'Fconst_5.0.pkl',
+    'Fconst_5.1.pkl',
+    'Fconst_5.2.pkl',
+    'Fconst_5.3.pkl'
+]
+loaddir = 'analyzed_data/Fconst/single_ens/default_runs/'
 
 # Plotting function
 def plot( data ):
@@ -76,8 +66,9 @@ def plot( data ):
 
     plt.close()
     
-# Looping over all loaded files and generating
-# plots for each of them
-for key, data in datadict.items():
+# Plotting wanted files
+for f in files:
+    fname = loaddir + f
+    data = pickle.load( open(fname, 'rb') )
     plot( data )
 
