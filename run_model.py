@@ -41,6 +41,7 @@ class Config:
 
     # Other
     dt : float = 0.05 # currently unimplemented
+    save_raw = False
 
 
 
@@ -136,5 +137,21 @@ def Main( cfg : Config, forcing_func ):
     analyzed_data['num_members'] = cfg.ens_size 
     analyzed_data['random_seed'] = cfg.random_seed
 
-    # Sending analyzed_data to controller script
-    return analyzed_data
+
+    # Sending output to controller script
+    if cfg.save_raw == False:
+        # DEFAULT RETURN:
+
+        # statistical measures &
+        # time series only
+
+        return analyzed_data
+
+    else:
+        # Analyzed data + raw x3d output.
+
+        # Only use this for small ensembles
+        # ( a few hundred or less members );
+        # files can get very big very quick
+
+        return analyzed_data, x3d
